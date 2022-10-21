@@ -60,5 +60,14 @@ public:
     vec_t DistToSqr(const Vec3& vOther) const;
 };
 
+class Vec4
+{
+    vec_t x, y, z, w;
+    constexpr Vec4();
+    constexpr Vec4(float _x, float _y, float _z, float _w);
 
+    inline Vec4 operator+(const Vec4& rhs);
+    inline Vec4 operator-(const Vec4& rhs);
+    inline Vec4 operator*(const Vec4& rhs);
+};
 

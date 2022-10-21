@@ -151,6 +151,7 @@
     <ClCompile Include="Process.cpp" />
     <ClCompile Include="Vector2D.cpp" />
     <ClCompile Include="Vector3D.cpp" />
+    <ClCompile Include="Vector4D.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Define.h" />

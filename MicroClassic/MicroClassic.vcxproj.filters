@@ -39,6 +39,9 @@
     <ClCompile Include="Process.cpp">
       <Filter>Process</Filter>
     </ClCompile>
+    <ClCompile Include="Vector4D.cpp">
+      <Filter>Utils\Vector</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Vector.h">
