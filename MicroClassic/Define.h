@@ -1,8 +1,15 @@
 #pragma once
 
+#include <Windows.h>
 #include <iostream>
-#include <assert.h>
 #include <limits>
+#include <string>
+#include <vector>
+#include <map>
+#include <unordered_map>
+
+typedef void* pvoid;
+typedef const void* pcvoid;
 
 typedef long long int64;
 typedef long int32;

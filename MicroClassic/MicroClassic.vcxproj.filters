@@ -19,6 +19,12 @@
     <Filter Include="Utils\Vector">
       <UniqueIdentifier>{ba65c006-7824-4d5f-9709-b6e62850dfe0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Process">
+      <UniqueIdentifier>{0e2a1c8b-10ce-405c-872b-db50f05f9e4d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Offsets">
+      <UniqueIdentifier>{53142e17-9d85-46c8-9927-d4fd60b54153}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -30,6 +36,9 @@
     <ClCompile Include="Vector3D.cpp">
       <Filter>Utils\Vector</Filter>
     </ClCompile>
+    <ClCompile Include="Process.cpp">
+      <Filter>Process</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Vector.h">
@@ -37,6 +46,9 @@
     </ClInclude>
     <ClInclude Include="Define.h">
       <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Process.h">
+      <Filter>Process</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
