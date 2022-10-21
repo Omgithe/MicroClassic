@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Define.h"
+#include "Module.h"
 
 class Process
 {
@@ -34,13 +34,13 @@ public:
 		VirtualProtectEx(m_hProcess, (pvoid)dwAddress, sizeof(T), oldProtect, NULL);
 		return true;
 	}
-	inline uint64 GetBase() { return m_dwBase; }
+
+	const Module* GetModule(const std::string& szModName);
 private:
 	uint32 GetProcessIdByName(const std::string& szExeName);
-	bool GetExeInfo();
+	bool DumpModules();
 
 	uint32 m_dwProcessId = NULL;
 	HANDLE m_hProcess = NULL;
-	uint64 m_dwBase = NULL;
-	uint64 m_dwSize = NULL;
+	std::unordered_map<std::string, Module*> m_mapModDump;
 };

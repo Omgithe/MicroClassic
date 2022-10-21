@@ -44,7 +44,7 @@ bool Process::Attach(const std::string& szExeName)
 		return false;
 	}
 
-	return GetExeInfo();
+	return DumpModules();
 }
 
 void Process::Detach()
@@ -54,10 +54,21 @@ void Process::Detach()
 		CloseHandle(m_hProcess);
 	}
 
+	if (!m_mapModDump.empty())
+	{
+		for (auto it : m_mapModDump)
+		{
+			if (it.second != nullptr)
+			{
+				delete it.second;
+				it.second = nullptr;
+			}
+		}
+		m_mapModDump.clear();
+	}
+
 	m_hProcess = NULL;
 	m_dwProcessId = NULL;
-	m_dwBase = NULL;
-	m_dwSize = NULL;
 }
 
 bool Process::Read(uint64 dwAddress, pvoid lpBuffer, uint64 dwSize)
@@ -103,7 +114,7 @@ DWORD Process::GetProcessIdByName(const std::string& szExeName)
 	return NULL;
 }
 
-bool Process::GetExeInfo()
+bool Process::DumpModules()
 {
 	HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, m_dwProcessId);
 
@@ -122,23 +133,27 @@ bool Process::GetExeInfo()
 		return false;
 	}
 
+	Module* pMod = nullptr;
 	do
 	{
 		char szPath[MAX_PATH] = { NULL };
 		GetModuleFileNameExA(m_hProcess, Entry.hModule, szPath, MAX_PATH);
 
-		size_t len = strlen(Entry.szModule);
-		if (Entry.szModule[len - 4] == '.' && Entry.szModule[len - 3] == 'e' && Entry.szModule[len - 2] == 'x' && Entry.szModule[len - 1] == 'e')
-		{
-			m_dwBase = (uint64)Entry.hModule;
-			m_dwSize = (uint64)Entry.modBaseSize;
-			CloseHandle(hSnapshot);
-			return true;
-		}
 
+		pMod = new Module((uint64)Entry.hModule, (uint64)Entry.modBaseSize);
+		m_mapModDump.insert({ Entry.szModule, pMod });
 	} while (Module32Next(hSnapshot, &Entry));
 
 	CloseHandle(hSnapshot);
 
-	return false;
+	return !m_mapModDump.empty();
+}
+
+const Module* Process::GetModule(const std::string& szModName)
+{
+	if (m_mapModDump.contains(szModName))
+	{
+		return m_mapModDump[szModName];
+	}
+	return nullptr;
 }

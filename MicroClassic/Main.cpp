@@ -6,17 +6,9 @@ int main()
 	Process p;
 	if (p.Attach("World of Warcraft"))
 	{
-		std::cout << "attached by windows name" << std::endl;
+		auto mptr = p.GetModule("WowClassic.exe");
+		std::cout << "attached by windows name " << mptr->GetImage() << std::endl;
 	}
-
-	p.Detach();
-
-	if (p.Attach("WowClassic.exe"))
-	{
-		std::cout << "attached by .exe name" << std::endl;
-	}
-
-	p.Detach();
 
 	return 0;
 }

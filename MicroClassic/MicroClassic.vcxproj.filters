@@ -50,5 +50,8 @@
     <ClInclude Include="Process.h">
       <Filter>Process</Filter>
     </ClInclude>
+    <ClInclude Include="Module.h">
+      <Filter>Process</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

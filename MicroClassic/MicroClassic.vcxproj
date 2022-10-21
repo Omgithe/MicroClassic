@@ -154,6 +154,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Define.h" />
+    <ClInclude Include="Module.h" />
     <ClInclude Include="Process.h" />
     <ClInclude Include="Vector.h" />
   </ItemGroup>
