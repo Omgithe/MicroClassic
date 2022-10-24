@@ -5,7 +5,7 @@
 
 Process::Process()
 {
-
+	Detach();
 }
 
 Process::~Process()
@@ -13,50 +13,85 @@ Process::~Process()
 	Detach();
 }
 
-bool Process::Attach(const std::string& szExeName)
+bool Process::Attach(const std::string& szName)
 {
 	Detach();
 
-	if (szExeName.empty())
+	if (szName.empty())
 	{
 		return false;
 	}
 
-	m_dwProcessId = GetProcessIdByName(szExeName);
+	m_iProcessId = GetProcessIdByName(szName);
 
-	if (!m_dwProcessId)
+	if (!m_iProcessId)
 	{
-		HWND hWnd = FindWindowA(NULL, szExeName.c_str());
+		m_hWindow = FindWindowA(NULL, szName.c_str());
 
-		if (hWnd == NULL)
+		if (m_hWindow == NULL)
 			return false;
 
-		GetWindowThreadProcessId(hWnd, &m_dwProcessId);
+		GetWindowThreadProcessId(m_hWindow, &m_iProcessId);
 
-		if (!m_dwProcessId)
+		if (!m_iProcessId)
 			return false;
 	}
+	else
+	{
+		HWND hWindow = NULL;
+		do
+		{
+			hWindow = FindWindowEx(NULL, hWindow, NULL, NULL);
+			uint32 iProcID = 0;
+			GetWindowThreadProcessId(hWindow, &iProcID);
+			if (iProcID == m_iProcessId)
+			{
+				if (GetWindow(hWindow, GW_OWNER) == (HWND)0 && IsWindowVisible(hWindow))
+				{
+					m_hWindow = hWindow;
+					break;
+				}
+			}
+		} while (hWindow != NULL);
 
-	m_hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, m_dwProcessId);
+		if (m_hWindow == NULL)
+		{
+			return false;
+		}
+	}
+	
+	m_hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, m_iProcessId);
 
 	if (!m_hProcess)
+		return false;
+
+
+	if (!DumpModules())
+		return false;
+
+	m_pWndContainer = new WindowContainer();
+
+	if (!m_pWndContainer->Init(m_hWindow))
 	{
+		SAFE_DELETE(m_pWndContainer);
 		return false;
 	}
 
-	return DumpModules();
+	return true;
 }
 
 void Process::Detach()
 {
+	SAFE_DELETE(m_pWndContainer);
+
 	if (m_hProcess)
 	{
 		CloseHandle(m_hProcess);
 	}
 
-	if (!m_mapModDump.empty())
+	if (!m_mapModules.empty())
 	{
-		for (auto it : m_mapModDump)
+		for (auto it : m_mapModules)
 		{
 			if (it.second != nullptr)
 			{
@@ -64,23 +99,24 @@ void Process::Detach()
 				it.second = nullptr;
 			}
 		}
-		m_mapModDump.clear();
+		m_mapModules.clear();
 	}
 
 	m_hProcess = NULL;
-	m_dwProcessId = NULL;
+	m_hWindow = NULL;
+	m_iProcessId = NULL;
 }
 
-bool Process::Read(uint64 dwAddress, pvoid lpBuffer, uint64 dwSize)
+bool Process::Read(uint64 iAddress, pvoid pBuffer, uint64 iSize)
 {
 	SIZE_T Out = NULL;
-	return (ReadProcessMemory(m_hProcess, (pcvoid)(dwAddress), lpBuffer, dwSize, &Out) == TRUE);
+	return (ReadProcessMemory(m_hProcess, (pcvoid)(iAddress), pBuffer, iSize, &Out) == TRUE);
 }
 
-bool Process::Write(uint64 dwAddress, pcvoid lpBuffer, uint64 dwSize)
+bool Process::Write(uint64 iAddress, pcvoid pBuffer, uint64 iSize)
 {
 	SIZE_T Out = NULL;
-	return (WriteProcessMemory(m_hProcess, (pvoid)(dwAddress), lpBuffer, dwSize, &Out) == TRUE);
+	return (WriteProcessMemory(m_hProcess, (pvoid)(iAddress), pBuffer, iSize, &Out) == TRUE);
 }
 
 DWORD Process::GetProcessIdByName(const std::string& szExeName)
@@ -111,12 +147,14 @@ DWORD Process::GetProcessIdByName(const std::string& szExeName)
 		}
 	} while (Process32Next(hSnapshot, &Entry));
 
+	CloseHandle(hSnapshot);
+
 	return NULL;
 }
 
 bool Process::DumpModules()
 {
-	HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, m_dwProcessId);
+	HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, m_iProcessId);
 
 	if (hSnapshot == INVALID_HANDLE_VALUE)
 	{
@@ -141,19 +179,35 @@ bool Process::DumpModules()
 
 
 		pMod = new Module((uint64)Entry.hModule, (uint64)Entry.modBaseSize);
-		m_mapModDump.insert({ Entry.szModule, pMod });
+		m_mapModules.insert({ Entry.szModule, pMod });
 	} while (Module32Next(hSnapshot, &Entry));
 
 	CloseHandle(hSnapshot);
 
-	return !m_mapModDump.empty();
+	return !m_mapModules.empty();
 }
 
 const Module* Process::GetModule(const std::string& szModName)
 {
-	if (m_mapModDump.contains(szModName))
+	if (m_mapModules.contains(szModName))
 	{
-		return m_mapModDump[szModName];
+		return m_mapModules[szModName];
 	}
 	return nullptr;
+}
+
+void Process::ProcessMessages()
+{
+
+	while (m_pWndContainer->ProcessMessages())
+	{
+		if (!IsWindow(m_hWindow))
+			break;
+
+		m_pWndContainer->GetOverlay()->TakeTargetShape(m_hWindow);
+
+		m_pWndContainer->GetGraphics()->BeginScense();
+
+		m_pWndContainer->GetGraphics()->EndScense();
+	}
 }

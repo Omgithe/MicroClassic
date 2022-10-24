@@ -1,15 +1,11 @@
 #include "Vector.h"
 
-constexpr Vec3::Vec3() : x(0.0f), y(0.0f), z(0.0f) {}
-
-constexpr Vec3::Vec3(float _x, float _y, float _z) : x(_x), y(_y), z(_z) {}
-
-float Vec3::operator[] (size_t idx) const
+inline float Vec3::operator[] (size_t idx) const
 {
 	return (&x)[idx];
 }
 
-float& Vec3::operator[] (size_t idx)
+inline float& Vec3::operator[] (size_t idx)
 {
 	return (&x)[idx];
 }

@@ -1,12 +1,14 @@
 #include "Vector.h"
 
-constexpr Vec4::Vec4()
-	: x(0.0f), y(0.0f), z(0.0f), w(0.0f)
-{ }
+inline float Vec4::operator[] (size_t idx) const
+{
+	return (&x)[idx];
+}
 
-constexpr Vec4::Vec4(vec_t _x, vec_t _y, vec_t _z, vec_t _w)
-	: x(_x), y(_y), z(_z), w(_w)
-{ }
+inline float& Vec4::operator[] (size_t idx)
+{
+	return (&x)[idx];
+}
 
 inline Vec4 Vec4::operator+(const Vec4& rhs)
 {
