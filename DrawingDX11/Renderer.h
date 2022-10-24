@@ -1,4 +1,5 @@
 #pragma once
+#pragma once
 
 #include "Defines.h"
 
@@ -73,9 +74,8 @@ class Renderer
 public:
 	Renderer();
 	~Renderer();
-	bool Initialize(HWND hWindow,int32 iWidth, int32 iHeight);
+	bool Initialize(HWND hWindow, int32 iWidth, int32 iHeight);
 	void Resize(int32 w, int32 h);
-	void BeginScense();
 	void Present();
 	float GetFps() { return m_fFps; }
 
@@ -151,7 +151,7 @@ private:
 	ID3D11Buffer* vertexBuffer = NULL;
 	ID3D11Buffer* screenProjectionBuffer = NULL;
 
-
+	uint32 maxVertices = 1024;
 	RenderList renderList;
 	XMMATRIX projection;
 

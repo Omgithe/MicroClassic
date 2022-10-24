@@ -33,7 +33,6 @@ LRESULT DrawManager::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 
 bool DrawManager::ProcessMessages()
 {
-	m_Renderer.Present();
 	return m_RenderWindow.ProcessMessages();
 }
 

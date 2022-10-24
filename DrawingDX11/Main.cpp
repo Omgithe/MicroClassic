@@ -10,7 +10,7 @@ int main()
 	{
 		while (dm.ProcessMessages())
 		{
-
+			dm.OnPresent();
 		}
 	}
 }

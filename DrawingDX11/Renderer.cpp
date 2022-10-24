@@ -119,7 +119,7 @@ bool Renderer::Initialize(HWND hWindow, int32 iWidth, int32 iHeight)
 
     maxVertices = (1024 * 4 * 3);
 
-   // renderList = RenderList(maxVertices); //std::make_unique<RenderList>(maxVertices);
+    // renderList = RenderList(maxVertices); //std::make_unique<RenderList>(maxVertices);
 
     throwIfFailed(D3DCompile(shader, std::size(shader), nullptr, nullptr, nullptr, "VS", "vs_4_0", 0, 0, &vsBlob, nullptr));
     throwIfFailed(D3DCompile(shader, std::size(shader), nullptr, nullptr, nullptr, "PS", "ps_4_0", 0, 0, &psBlob, nullptr));
@@ -176,7 +176,7 @@ bool Renderer::Initialize(HWND hWindow, int32 iWidth, int32 iHeight)
 
     projection = XMMatrixOrthographicOffCenterLH(viewport.TopLeftX, viewport.Width, viewport.Height, viewport.TopLeftY,
         viewport.MinDepth, viewport.MaxDepth);
-    
+
     D3D11_MAPPED_SUBRESOURCE mappedResource;
     throwIfFailed(m_pd3dDeviceContext->Map(screenProjectionBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
     {
@@ -199,19 +199,24 @@ void Renderer::Resize(int32 w, int32 h)
 
 void Renderer::Present()
 {
-    //ImGui_ImplDX11_NewFrame();
-    //ImGui_ImplWin32_NewFrame();
-   // ImGui::NewFrame();
+    float clearColor[4] = { 1.0f,0.0f,1.0f,0.0f };
+    float blend[4] = { 0 };
 
-    //ImGui::Render();
-
-    const float clear_color_with_alpha[4] = { 0, 0, 0, 0 };
+    const float clear_color_with_alpha[4] = { 1, 1, 1, 0 };
     m_pd3dDeviceContext->OMSetRenderTargets(1, &m_pRenderTargetView, NULL);
     m_pd3dDeviceContext->ClearRenderTargetView(m_pRenderTargetView, clear_color_with_alpha);
+    m_pd3dDeviceContext->OMSetBlendState(blendState, blend, 0xffffffff);
 
-    //ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+    begin();
 
-    m_pSwapChain->Present(1, 0); // Present with vsync
+    XMFLOAT4 rect{ 200.f, 200.f, 200.f, 200.f };
+    drawFilledRect(rect, {0,1,1,1});
+
+    draw();
+    end();
+
+    m_pd3dDeviceContext->OMSetBlendState(blendState, blend, 0xffffffff);
+    m_pSwapChain->Present(1, 0);
 }
 
 bool Renderer::CreateRenderTarget()
@@ -238,9 +243,6 @@ bool Renderer::CreateRenderTarget()
 
     return true;
 }
-
-
-///////////////////////////////////////////////////////////
 
 void Renderer::begin()
 {

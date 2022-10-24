@@ -11,6 +11,7 @@ public:
 	LRESULT WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	bool ProcessMessages();
 	bool Initialize();
+	void OnPresent() { m_Renderer.Present(); }
 private:
 	RenderWindow m_RenderWindow;
 	Renderer m_Renderer;
