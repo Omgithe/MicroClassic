@@ -42,12 +42,6 @@
     <ClCompile Include="Vector4D.cpp">
       <Filter>Utils\Vector</Filter>
     </ClCompile>
-    <ClCompile Include="Overlay.cpp">
-      <Filter>Process</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics.cpp">
-      <Filter>Process</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Vector.h">
@@ -60,15 +54,6 @@
       <Filter>Process</Filter>
     </ClInclude>
     <ClInclude Include="Module.h">
-      <Filter>Process</Filter>
-    </ClInclude>
-    <ClInclude Include="Overlay.h">
-      <Filter>Process</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics.h">
-      <Filter>Process</Filter>
-    </ClInclude>
-    <ClInclude Include="WindowContainer.h">
       <Filter>Process</Filter>
     </ClInclude>
   </ItemGroup>

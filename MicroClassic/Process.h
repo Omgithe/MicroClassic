@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Module.h"
-#include "WindowContainer.h"
 
 class Process
 {
@@ -48,10 +47,7 @@ private:
 	HANDLE m_hProcess = NULL;
 	HWND m_hWindow = NULL;
 
-	WindowContainer* m_pWndContainer = nullptr;
-
 	std::unordered_map<std::string, Module*> m_mapModules;
-	std::unordered_map<std::string, uint64> m_mapOffsets;
 
 	uint64 m_iCurrFrame = 0;
 	uint64 m_iRPMCalls = 0;
