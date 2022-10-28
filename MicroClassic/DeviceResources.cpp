@@ -136,11 +136,9 @@ void DeviceResources::CreateWindowSizeDependentResources()
 			m_swapChain.ReleaseAndGetAddressOf()
 		));
 
-		// This class does not support exclusive full-screen mode and prevents DXGI from responding to the ALT+ENTER shortcut
 		ThrowIfFailed(m_dxgiFactory->MakeWindowAssociation(m_window, DXGI_MWA_NO_ALT_ENTER));
 	}
 
-	// Create a render target view of the swap chain back buffer.
 	ThrowIfFailed(m_swapChain->GetBuffer(0, IID_PPV_ARGS(m_renderTarget.ReleaseAndGetAddressOf())));
 
 	CD3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc(D3D11_RTV_DIMENSION_TEXTURE2D, m_backBufferFormat);
@@ -152,7 +150,6 @@ void DeviceResources::CreateWindowSizeDependentResources()
 
 	if (m_depthBufferFormat != DXGI_FORMAT_UNKNOWN)
 	{
-		// Create a depth stencil view for use with 3D rendering if needed.
 		CD3D11_TEXTURE2D_DESC depthStencilDesc(
 			m_depthBufferFormat,
 			backBufferWidth,
@@ -235,21 +232,13 @@ void DeviceResources::Present()
 
 	hr = m_swapChain->Present(3, 0);
 
-	// Discard the contents of the render target.
-	// This is a valid operation only when the existing contents will be entirely
-	// overwritten. If dirty or scroll rects are used, this call should be removed.
-	
   //  m_d3dContext->DiscardView(m_d3dRenderTargetView.Get());
 	
 	if (m_d3dDepthStencilView)
 	{
-		// Discard the contents of the depth stencil.
-		// 
 	   // m_d3dContext->DiscardResource(m_d3dDepthStencilView.Get());
 	}
 
-	// If the device was removed either by a disconnection or a driver upgrade, we
-	// must recreate all device resources.
 	if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET)
 	{
 		HandleDeviceLost();

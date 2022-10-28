@@ -163,8 +163,6 @@ LRESULT Overlay::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 void Overlay::OnDeviceLost()
 {
-	// TODO: Add Direct3D resource cleanup here.
-
 	m_states.reset();
 	m_effect.reset();
 	m_batch.reset();
@@ -179,18 +177,10 @@ void Overlay::OnDeviceRestored()
 
 void Overlay::Render()
 {
-	// Don't try to render anything before the first Update.
-	//if (m_timer.GetFrameCount() == 0)
-	//{
-	//	return;
-	//}
-
 	Clear();
 
 	auto context = m_deviceResources->GetD3DDeviceContext();
 
-	// TODO: Add your rendering code here.
-	//context;
 
 	context->OMSetBlendState(m_states->Opaque(), nullptr, 0xFFFFFFFF);
 	context->OMSetDepthStencilState(m_states->DepthNone(), 0);
@@ -243,14 +233,11 @@ void Overlay::Render()
 
 	m_batch->End();
 
-	// Show the new frame.
 	m_deviceResources->Present();
 }
 
-// Helper method to clear the back buffers.
 void Overlay::Clear()
 {
-	// Clear the views.
 	auto context = m_deviceResources->GetD3DDeviceContext();
 	auto renderTarget = m_deviceResources->GetRenderTargetView();
 	auto depthStencil = m_deviceResources->GetDepthStencilView();
@@ -260,7 +247,6 @@ void Overlay::Clear()
 	context->ClearDepthStencilView(depthStencil, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	context->OMSetRenderTargets(1, &renderTarget, depthStencil);
 
-	// Set the viewport.
 	auto const viewport = m_deviceResources->GetScreenViewport();
 	context->RSSetViewports(1, &viewport);
 }
@@ -268,9 +254,6 @@ void Overlay::Clear()
 void Overlay::CreateDeviceDependentResources()
 {
 	auto device = m_deviceResources->GetD3DDevice();
-
-	// TODO: Initialize device dependent objects here (independent of window size).
-	//device;
 
 	m_states = std::make_unique<CommonStates>(device);
 
@@ -288,8 +271,6 @@ void Overlay::CreateDeviceDependentResources()
 
 void Overlay::CreateWindowSizeDependentResources()
 {
-	// TODO: Initialize windows-size dependent objects here.
-
 	auto size = m_deviceResources->GetOutputSize();
 
 	Matrix proj = Matrix::CreateScale(2.f / float(size.right),
