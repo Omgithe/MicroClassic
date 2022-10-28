@@ -16,37 +16,31 @@
     <Filter Include="Utils">
       <UniqueIdentifier>{4ae58173-74ab-405b-9ad7-9128fc21ae7b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Utils\Vector">
-      <UniqueIdentifier>{ba65c006-7824-4d5f-9709-b6e62850dfe0}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Process">
       <UniqueIdentifier>{0e2a1c8b-10ce-405c-872b-db50f05f9e4d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Offsets">
-      <UniqueIdentifier>{53142e17-9d85-46c8-9927-d4fd60b54153}</UniqueIdentifier>
+    <Filter Include="Math">
+      <UniqueIdentifier>{c44d8d83-f0b7-4c0d-98a1-c80b01bead44}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Overlay">
+      <UniqueIdentifier>{790174ad-e22e-4a98-ab36-ea18dd2d3f46}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="Vector2D.cpp">
-      <Filter>Utils\Vector</Filter>
-    </ClCompile>
-    <ClCompile Include="Vector3D.cpp">
-      <Filter>Utils\Vector</Filter>
-    </ClCompile>
     <ClCompile Include="Process.cpp">
       <Filter>Process</Filter>
     </ClCompile>
-    <ClCompile Include="Vector4D.cpp">
-      <Filter>Utils\Vector</Filter>
+    <ClCompile Include="Overlay.cpp">
+      <Filter>Overlay</Filter>
+    </ClCompile>
+    <ClCompile Include="DeviceResources.cpp">
+      <Filter>Overlay</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Vector.h">
-      <Filter>Utils\Vector</Filter>
-    </ClInclude>
     <ClInclude Include="Define.h">
       <Filter>Utils</Filter>
     </ClInclude>
@@ -56,5 +50,17 @@
     <ClInclude Include="Module.h">
       <Filter>Process</Filter>
     </ClInclude>
+    <ClInclude Include="Overlay.h">
+      <Filter>Overlay</Filter>
+    </ClInclude>
+    <ClInclude Include="DeviceResources.h">
+      <Filter>Overlay</Filter>
+    </ClInclude>
+    <ClInclude Include="Helpers.h">
+      <Filter>Overlay</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>

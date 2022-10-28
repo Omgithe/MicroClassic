@@ -1,15 +1,29 @@
 #pragma execution_character_set( "utf-8" )
 
-#include <Windows.h>
 #include "Process.h"
+#include "Overlay.h"
 
 int main()
 {
-	Process p;
-
-	if (p.Attach("WowClassic.exe"))
+	SetConsoleOutputCP(65001);
+	try
 	{
-		p.ProcessMessages();
+		Process p;
+		Overlay o;
+
+		if (!p.Attach("notepad.exe"))
+			return 0;
+
+		o.Attach(&p);
+
+		while (o.ProcessMessages())
+		{
+			o.Render();
+		}
+	}
+	catch (std::exception e)
+	{
+		printf("%s\n", e.what());
 	}
 	return 0;
 }

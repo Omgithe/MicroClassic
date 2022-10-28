@@ -69,21 +69,11 @@ bool Process::Attach(const std::string& szName)
 	if (!DumpModules())
 		return false;
 
-	m_pWndContainer = new WindowContainer();
-
-	if (!m_pWndContainer->Init(m_hWindow))
-	{
-		SAFE_DELETE(m_pWndContainer);
-		return false;
-	}
-
 	return true;
 }
 
 void Process::Detach()
 {
-	SAFE_DELETE(m_pWndContainer);
-
 	if (m_hProcess)
 	{
 		CloseHandle(m_hProcess);
@@ -199,15 +189,4 @@ const Module* Process::GetModule(const std::string& szModName)
 void Process::ProcessMessages()
 {
 
-	while (m_pWndContainer->ProcessMessages())
-	{
-		if (!IsWindow(m_hWindow))
-			break;
-
-		m_pWndContainer->GetOverlay()->TakeTargetShape(m_hWindow);
-
-		m_pWndContainer->GetGraphics()->BeginScense();
-
-		m_pWndContainer->GetGraphics()->EndScense();
-	}
 }

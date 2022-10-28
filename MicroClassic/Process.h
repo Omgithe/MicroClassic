@@ -8,11 +8,11 @@ public:
 	Process();
 	~Process();
 
-	bool Attach(const std::string&);
+	bool Attach(const std::string& szName);
 	void Detach();
 
-	bool Read(uint64, pvoid, uint64);
-	bool Write(uint64, pcvoid, uint64);
+	bool Read(uint64 iAddress, pvoid pBuffer, uint64 iSize);
+	bool Write(uint64 iAddress, pcvoid pBuffer, uint64 iSize);
 
 	template<typename T>
 	inline T Read(uint64 iAddress, const T& tDefault = T())
@@ -36,11 +36,11 @@ public:
 		return true;
 	}
 
-	const Module* GetModule(const std::string&);
+	const Module* GetModule(const std::string& szModName);
 	inline const HWND GetWindowHandle() { return m_hWindow; }
 	void ProcessMessages();
 private:
-	uint32 GetProcessIdByName(const std::string&);
+	uint32 GetProcessIdByName(const std::string& szExeName);
 	bool DumpModules();
 
 	uint32 m_iProcessId = NULL;

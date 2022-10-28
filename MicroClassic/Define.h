@@ -20,29 +20,3 @@ typedef unsigned long long uint64;
 typedef unsigned long uint32;
 typedef unsigned short uint16;
 typedef unsigned char uint8;
-
-typedef float vec_t;
-
-template <typename T>
-inline void safeRelease(T& ptr)
-{
-    if (ptr)
-    {
-        ptr->Release();
-        ptr = NULL;
-    }
-}
-
-#define SAFE_RELEASE safeRelease
-
-template <typename T>
-inline void safeDelete(T& ptr)
-{
-    if (ptr)
-    {
-        delete ptr;
-        ptr = nullptr;
-    }
-}
-
-#define SAFE_DELETE safeDelete
