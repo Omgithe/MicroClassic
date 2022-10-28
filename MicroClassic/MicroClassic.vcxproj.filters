@@ -39,6 +39,9 @@
     <ClCompile Include="DeviceResources.cpp">
       <Filter>Overlay</Filter>
     </ClCompile>
+    <ClCompile Include="MSAA.cpp">
+      <Filter>Overlay</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Define.h">
@@ -57,6 +60,9 @@
       <Filter>Overlay</Filter>
     </ClInclude>
     <ClInclude Include="Helpers.h">
+      <Filter>Overlay</Filter>
+    </ClInclude>
+    <ClInclude Include="MSAA.h">
       <Filter>Overlay</Filter>
     </ClInclude>
   </ItemGroup>

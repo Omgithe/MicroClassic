@@ -9,8 +9,14 @@ using Microsoft::WRL::ComPtr;
 
 Overlay::Overlay()
 {
-	m_deviceResources = std::make_unique<DX::DeviceResources>();
+	m_deviceResources = std::make_unique<DX::DeviceResources>(
+		DXGI_FORMAT_B8G8R8A8_UNORM,
+		DXGI_FORMAT_UNKNOWN);
 	m_deviceResources->RegisterDeviceNotify(this);
+	m_MSAA = std::make_unique<DX::MSAA>(
+		m_deviceResources->GetBackBufferFormat(),
+		DXGI_FORMAT_D32_FLOAT,
+		4);
 }
 
 Overlay::~Overlay()
@@ -167,6 +173,7 @@ void Overlay::OnDeviceLost()
 	m_effect.reset();
 	m_batch.reset();
 	m_inputLayout.Reset();
+	m_MSAA->ReleaseDevice();
 }
 
 void Overlay::OnDeviceRestored()
@@ -233,14 +240,18 @@ void Overlay::Render()
 
 	m_batch->End();
 
+	m_MSAA->Resolve(context, m_deviceResources->GetRenderTarget());
 	m_deviceResources->Present();
 }
 
 void Overlay::Clear()
 {
 	auto context = m_deviceResources->GetD3DDeviceContext();
-	auto renderTarget = m_deviceResources->GetRenderTargetView();
-	auto depthStencil = m_deviceResources->GetDepthStencilView();
+	//auto renderTarget = m_deviceResources->GetRenderTargetView();
+	//auto depthStencil = m_deviceResources->GetDepthStencilView();
+
+	auto renderTarget = m_MSAA->GetMSAARenderTargetView();
+	auto depthStencil = m_MSAA->GetMSAADepthStencilView();
 
 	float clear_color[4] = {0, 0.1f, 0.25f, .2f};
 	context->ClearRenderTargetView(renderTarget, clear_color);
@@ -267,6 +278,8 @@ void Overlay::CreateDeviceDependentResources()
 
 	auto context = m_deviceResources->GetD3DDeviceContext();
 	m_batch = std::make_unique<PrimitiveBatch<DirectX::VertexPositionColor>>(context);
+
+	m_MSAA->SetDevice(device);
 }
 
 void Overlay::CreateWindowSizeDependentResources()
@@ -277,4 +290,7 @@ void Overlay::CreateWindowSizeDependentResources()
 		-2.f / float(size.bottom), 1.f)
 		* Matrix::CreateTranslation(-1.f, 1.f, 0.f);
 	m_effect->SetProjection(proj);
+
+	// Set window size for MSAA.
+	m_MSAA->SetWindow(size);
 }

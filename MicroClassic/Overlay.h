@@ -3,6 +3,7 @@
 #include "Process.h"
 #include "Define.h"
 #include "DeviceResources.h"
+#include "MSAA.h"
 #include "PrimitiveBatch.h"
 #include "CommonStates.h"
 #include "Effects.h"
@@ -35,6 +36,7 @@ private:
 	HWND m_hTargetWindow = NULL;
 	WNDCLASSEX m_WndClass{ 0 };
 	std::unique_ptr<DX::DeviceResources> m_deviceResources;
+	std::unique_ptr<DX::MSAA> m_MSAA;
 
 	std::unique_ptr<DirectX::CommonStates> m_states;
 	std::unique_ptr<DirectX::BasicEffect> m_effect;
