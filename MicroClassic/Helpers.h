@@ -1,8 +1,12 @@
 #pragma once
 
+#include "SimpleMath.h"
+
 #include <winerror.h>
 #include <iostream>
 #include <stdexcept>
+
+using namespace DirectX::SimpleMath;
 
 namespace DX
 {

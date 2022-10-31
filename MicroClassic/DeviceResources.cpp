@@ -230,7 +230,7 @@ void DeviceResources::Present()
 {
 	HRESULT hr = E_FAIL;
 
-	hr = m_swapChain->Present(3, 0);
+	hr = m_swapChain->Present(1, 0);
 
   //  m_d3dContext->DiscardView(m_d3dRenderTargetView.Get());
 	

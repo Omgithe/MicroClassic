@@ -18,7 +18,7 @@ int main()
 
 		while (o.ProcessMessages())
 		{
-			o.Render();
+			o.Tick();
 		}
 	}
 	catch (std::exception e)

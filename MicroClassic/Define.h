@@ -7,6 +7,7 @@
 #include <vector>
 #include <map>
 #include <unordered_map>
+#include <wrl/client.h>
 
 typedef void* pvoid;
 typedef const void* pcvoid;

@@ -64,7 +64,7 @@ namespace DX
 
     private:
         void CreateFactory();
-        void GetHardwareAdapter(IDXGIAdapter** ppAdapter);
+       // void GetHardwareAdapter(IDXGIAdapter** ppAdapter);
 
         Microsoft::WRL::ComPtr<IDXGIFactory>               m_dxgiFactory;
         Microsoft::WRL::ComPtr<ID3D11Device>               m_d3dDevice;

@@ -1,6 +1,7 @@
 #include "Overlay.h"
 
 #include <dwmapi.h>
+#include <algorithm>
 #pragma comment(lib, "dwmapi.lib")
 
 using namespace DirectX;
@@ -12,11 +13,13 @@ Overlay::Overlay()
 	m_deviceResources = std::make_unique<DX::DeviceResources>(
 		DXGI_FORMAT_B8G8R8A8_UNORM,
 		DXGI_FORMAT_UNKNOWN);
+
 	m_deviceResources->RegisterDeviceNotify(this);
+
 	m_MSAA = std::make_unique<DX::MSAA>(
 		m_deviceResources->GetBackBufferFormat(),
 		DXGI_FORMAT_D32_FLOAT,
-		4);
+		16);
 }
 
 Overlay::~Overlay()
@@ -96,7 +99,21 @@ void Overlay::Attach(Process* pProcess)
 {
 	m_hTargetWindow = pProcess->GetWindowHandle();
 	
-	m_WndClass = { sizeof(WNDCLASSEX), CS_CLASSDC, HandleMsgSetup, 0L, 0L, GetModuleHandle(NULL), NULL, NULL, NULL, NULL, "std::wdasdsa", NULL };
+	m_WndClass = {
+		sizeof(WNDCLASSEX),
+		CS_CLASSDC,
+		HandleMsgSetup,
+		0L,
+		0L,
+		GetModuleHandle(NULL),
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		"std::wdasdsa",
+		NULL 
+	};
+
 	RegisterClassEx(&m_WndClass);
 
 	RECT cr;
@@ -141,6 +158,9 @@ LRESULT Overlay::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		CreateDeviceDependentResources();
 		m_deviceResources->CreateWindowSizeDependentResources();
 		CreateWindowSizeDependentResources();
+
+		m_timer.SetFixedTimeStep(true);
+		m_timer.SetTargetElapsedSeconds(1.0 / 60);
 		break;
 	case WM_MOVE:
 		auto const r = m_deviceResources->GetOutputSize();
@@ -184,6 +204,12 @@ void Overlay::OnDeviceRestored()
 
 void Overlay::Render()
 {
+	// Don't try to render anything before the first Update.
+	if (m_timer.GetFrameCount() == 0)
+	{
+		return;
+	}
+
 	Clear();
 
 	auto context = m_deviceResources->GetD3DDeviceContext();
@@ -191,7 +217,7 @@ void Overlay::Render()
 
 	context->OMSetBlendState(m_states->Opaque(), nullptr, 0xFFFFFFFF);
 	context->OMSetDepthStencilState(m_states->DepthNone(), 0);
-	context->RSSetState(m_states->CullNone());
+	context->RSSetState(m_states->CullCounterClockwise());
 
 	m_effect->Apply(context);
 
@@ -199,44 +225,15 @@ void Overlay::Render()
 
 	m_batch->Begin();
 
-	VertexPositionColor v1(Vector3(400.f, 150.f, 0.f), Colors::Red);
-	VertexPositionColor v2(Vector3(600.f, 450.f, 0.f), Colors::Green);
-	VertexPositionColor v3(Vector3(200.f, 450.f, 0.f), Colors::Blue);
+	float x = 0;
+	float y = 0;
+	float r = 100;
 
-	//for (int i = 0; i< 100000; i++)
-	m_batch->DrawTriangle(v1, v2, v3);
-
-	//for (int i = 0; i < 100000;i++)
-	//	m_batch->DrawLine(v1, v2);
-
-	float x = 150.f;
-	float y = 150.f;
-	float w = 150.f;
-	float h = 150.f;
-
-	const int segments = 128;
-	float radius = 45.f;
-
-	VertexPositionColor v[segments];
-	uint16_t Indices[segments * 2];
-	ZeroMemory(Indices, std::size(Indices));
-
-	int offset = 0;
-	int k = 0;
-	for (int i = 0; i < segments; i++)
-	{
-		float theta = 2.f * XM_PI * static_cast<float>(i) / static_cast<float>(segments);
-		v[i] = { Vector3(x + radius * std::cos(theta), y + radius * std::sin(theta), 0.f), Colors::Green };
-		Indices[k] = offset;
-		Indices[k + 1] = offset;
-		offset++;
-		k += i == 0 ? 1 : 2;
-	}
+	DrawRect({ x, y , 300, 100 }, 30, { 1,0,1,1 });
+	DrawLine({x, y}, {300, 100});
+	//DrawRectFilled({ x, y + 110, 300, 100 }, { 1,0,1,1 });
+	//DrawRectFilled({ x, y + 110 }, { 300, 100 }, { 0,0,0,0.5f });
 	
-	Indices[(segments * 2) - 1] = 0;
-	
-
-	m_batch->DrawIndexed(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_LINELIST, Indices, segments * 2, v, segments);
 
 	m_batch->End();
 
@@ -247,9 +244,7 @@ void Overlay::Render()
 void Overlay::Clear()
 {
 	auto context = m_deviceResources->GetD3DDeviceContext();
-	//auto renderTarget = m_deviceResources->GetRenderTargetView();
-	//auto depthStencil = m_deviceResources->GetDepthStencilView();
-
+	
 	auto renderTarget = m_MSAA->GetMSAARenderTargetView();
 	auto depthStencil = m_MSAA->GetMSAADepthStencilView();
 
@@ -289,8 +284,99 @@ void Overlay::CreateWindowSizeDependentResources()
 	Matrix proj = Matrix::CreateScale(2.f / float(size.right),
 		-2.f / float(size.bottom), 1.f)
 		* Matrix::CreateTranslation(-1.f, 1.f, 0.f);
+
 	m_effect->SetProjection(proj);
 
 	// Set window size for MSAA.
 	m_MSAA->SetWindow(size);
+}
+
+void Overlay::DrawLine(Vector2 start, Vector2 end, Color color)
+{
+	VertexPositionColor v[]
+	{
+		{ {start.x,	start.y, 0.f}, color },
+		{ {end.x, end.y, 0.f}, color }
+	};
+
+	m_batch->Draw(D3D11_PRIMITIVE_TOPOLOGY::D3D_PRIMITIVE_TOPOLOGY_LINELIST, v, std::size(v));
+}
+
+void Overlay::DrawTriangleFilled(Vector2 v1, Vector2 v2, Vector3 v3, Color c)
+{
+	VertexPositionColor vert1{ Vector3(v1.x, v1.y, 0), c };
+	VertexPositionColor vert2{ Vector3(v2.x, v2.y, 0), c };
+	VertexPositionColor vert3{ Vector3(v3.x, v3.y, 0), c };
+	m_batch->DrawTriangle(vert1, vert2, vert3);
+}
+
+void Overlay::DrawRect(Vector4 rect, float strokeWidth, Color c)
+{
+	Vector4 tmp = rect;
+
+	tmp.z = strokeWidth;
+	DrawRectFilled(tmp, c);
+	tmp.x = rect.x + rect.z - strokeWidth;
+	DrawRectFilled(tmp, c);
+	tmp.z = rect.z;
+	tmp.x = rect.x;
+	tmp.w = strokeWidth;
+	DrawRectFilled(tmp, c);
+	tmp.y = rect.y + rect.w - strokeWidth;
+	DrawRectFilled(tmp, c);
+}
+
+void Overlay::DrawRectFilled(Vector4 rect, Color c)
+{
+	VertexPositionColor v[]
+	{
+		{ {rect.x,			rect.y,				0.f}, c },
+		{ {rect.x + rect.z,	rect.y,				0.f}, c },
+		{ {rect.x,			rect.y + rect.w,	0.f}, c },
+
+		{ {rect.x + rect.z,	rect.y,				0.f}, c },
+		{ {rect.x + rect.z,	rect.y + rect.w,	0.f}, c },
+		{ {rect.x,			rect.y + rect.w,	0.f}, c }
+	};
+
+	m_batch->Draw(D3D11_PRIMITIVE_TOPOLOGY::D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST, v, std::size(v));
+}
+
+void Overlay::DrawCircle(Vector2 v1, float r, Color c)
+{
+	const int num = (int)((2.f * XM_PI) / acosf(1.f - (2.f / (r * 2.f))));
+	std::vector<VertexPositionColor> vertices;
+	for (int i = 0; i <= num; i++)
+		vertices.push_back({ { v1.x + r * cosf(XM_PI * ((float)i / (num / 2.f))) , v1.y + r * sinf(XM_PI * ((float)i / (num / 2.f))), 0 }, c });
+
+	m_batch->Draw(D3D11_PRIMITIVE_TOPOLOGY::D3D_PRIMITIVE_TOPOLOGY_LINESTRIP, vertices.data(), vertices.size());
+}
+
+void Overlay::DrawCircleFilled(Vector2 v1, float r, Color c)
+{
+	int num = (int)((2.f * XM_PI) / acosf(1.f - (2.f / (r * 2.f))));
+	VertexPositionColor mid { { v1.x, v1.y, 0 }, c };
+	VertexPositionColor prev { { v1.x + r, v1.y, 0 }, c };
+	for (int i = 1; i <= num; i++)
+	{
+		VertexPositionColor cur { { v1.x + r * cosf(XM_PI * ((float)i / (num / 2.f))) , v1.y + r * sinf(XM_PI * ((float)i / (num / 2.f))), 0 }, c };
+		m_batch->DrawTriangle(prev, mid, cur);
+		prev = cur;
+	}
+}
+
+void Overlay::Tick()
+{
+	m_timer.Tick([&]()
+		{
+			Update(m_timer);
+		});
+
+	Render();
+}
+
+void Overlay::Update(DX::StepTimer const& timer)
+{
+	float elapsedTime = float(timer.GetElapsedSeconds());
+
 }

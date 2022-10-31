@@ -161,6 +161,7 @@
     <ClInclude Include="MSAA.h" />
     <ClInclude Include="Overlay.h" />
     <ClInclude Include="Process.h" />
+    <ClInclude Include="StepTimer.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

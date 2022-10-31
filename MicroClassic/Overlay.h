@@ -11,6 +11,7 @@
 #include "DirectXHelpers.h"
 #include "SimpleMath.h"
 #include "Helpers.h"
+#include "StepTimer.h"
 
 class Overlay
 	: public DX::IDeviceNotify
@@ -26,8 +27,17 @@ public:
 	HWND GetWindowHandle() { return m_hWindow; }
 	void OnDeviceLost() override;
 	void OnDeviceRestored() override;
-	void Render();
+	void Tick();
+	void DrawLine(Vector2 v1, Vector2 v2, Color c = { 1,1,1,1 });
+	void DrawTriangle(Vector2 v1, Vector2 v2, Vector3 v3, Color c = { 1,1,1,1 });
+	void DrawTriangleFilled(Vector2 v1, Vector2 v2, Vector3 v3, Color c = { 1,1,1,1 });
+	void DrawRect(Vector4 rect, float strokeWidth, Color c = { 1,1,1,1 });
+	void DrawRectFilled(Vector4 rect, Color c = { 1,1,1,1 });
+	void DrawCircle(Vector2 v1, float r, Color c = {1,1,1,1});
+	void DrawCircleFilled(Vector2 v1, float r, Color c = { 1,1,1,1 });
 private:
+	void Update(DX::StepTimer const& timer);
+	void Render();
 	void CreateDeviceDependentResources();
 	void CreateWindowSizeDependentResources();
 	void Clear();
@@ -46,4 +56,5 @@ private:
 
 	int m_iWidth = 800;
 	int m_iHeight = 600;
+	DX::StepTimer m_timer;
 };

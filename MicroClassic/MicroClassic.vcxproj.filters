@@ -25,6 +25,9 @@
     <Filter Include="Overlay">
       <UniqueIdentifier>{790174ad-e22e-4a98-ab36-ea18dd2d3f46}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Utils\Timers">
+      <UniqueIdentifier>{f86f3e80-e2ca-470c-b2df-d030731f7ef2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -64,6 +67,9 @@
     </ClInclude>
     <ClInclude Include="MSAA.h">
       <Filter>Overlay</Filter>
+    </ClInclude>
+    <ClInclude Include="StepTimer.h">
+      <Filter>Utils\Timers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
